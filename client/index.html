@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>jabber</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unkempt:wght@400;700&display=swap" rel="stylesheet">
+
+  <script src="./src/main.js" type="module"></script>
+</head>
+
+<body>
+  <canvas width="1920" height="1080">
+    Get a real browser!
+  </canvas>
+
+  <div class="vertical-center">
+    <div class="center">
+      <h1>jabber</h1>
+
+      <form id="joinForm" action="/joinRoom" method="get">
+        <h3>~ join a room ~</h3>
+        <div class="input-line">
+          <input id="codeField" class="text-line" type="text" placeholder="ENTER ROOM CODE" />
+          <input type="submit" class="button button-hover" value="join" />
+        </div>
+      </form>
+
+      <h2>or</h2>
+
+      <form id="createForm" action="/createRoom" method="get">
+        <h3>~ create a room ~</h3>
+        <div class="input-line">
+          <input id="promptField" type="text" class="text-line" placeholder="ENTER A PROMPT" />
+          <input type="submit" class="button button-hover" value="create" />
+        </div>
+      </form>
+
+    </div>
+  </div>
+</body>
+
+</html>

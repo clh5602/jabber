@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>jabber - room</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unkempt:wght@400;700&display=swap" rel="stylesheet">
+
+  <script src="./src/main.js" type="module"></script>
+</head>
+
+<body>
+  <canvas width="1920" height="1080">
+    Get a real browser!
+  </canvas>
+
+  <div class="top-bar">
+    <div class="left-section">
+      <h1>jabber</h1>
+    </div>
+    <div class="right-section">
+      <h3>room code</h3>
+      <h2 id="room-code">1337</h2>
+    </div>
+  </div>
+
+  <div class="content">
+    test
+  </div>
+
+  <div class="bottom-answer">
+    <form id="postForm" action="/submitPost" method="post">
+      <h3>What is your favorite type of cheese?</h3>
+      <div class="input-line">
+        <input id="answerField" type="text" class="answer-line" placeholder="YOUR ANSWER HERE" />
+        <input type="submit" class="button button-hover" value="submit" />
+      </div>
+    </form>
+  </div>
+
+</body>
+
+</html>

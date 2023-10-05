@@ -1,12 +1,17 @@
-body {
-  width: 100vw;
+.vertical-center {
+  width: 100%;
   height: 100vh;
   margin: 0;
   padding: 0;
   display: flex;
   justify-content: space-around;
   flex-direction: column;
-  background-color: rgb(0, 60, 109);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
 }
 
 * {
@@ -40,8 +45,8 @@ h3 {
 
 .center {
   text-align: center;
-  height: 50vh;
-  width: 1080px;
+  height: 70vh;
+  width: 880px;
   margin: auto auto;
   display: flex;
   justify-content: space-between;
@@ -50,11 +55,46 @@ h3 {
 
 .input-line {
   width: 500px;
+  display: flex;
+  justify-content: space-around;
 }
 
 input {
   font-family: monospace;
-  height: 2rem;
+  font-size: 2rem;
+  text-align: center;
+  border-radius: 20px;
+  border: 0;
+  outline: 0;
+  height: 3rem;
+}
+
+.text-line {
+  color: #777;
+  width: 350px;
+}
+
+.button {
+  width: 120px;
+  font-weight: 600;
+  font-family: 'Unkempt', cursive;
+  color: white;
+  text-shadow: rgb(0, 0, 0) 1px 0 10px;
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.button-hover {
+  background-color: rgba(255, 255, 255, 0.25);
+  transition: 0.3s;
+}
+
+.button-hover:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+
+}
+
+input:focus {
+  outline: none !important;
 }
 
 label {
@@ -69,12 +109,142 @@ form {
   display: flex;
   justify-content: space-around;
   flex-direction: column;
-  height: 12vh;
+  height: 150px;
   align-items: center;
 }
 
-@media screen and (max-width: 1180px) {
+@media screen and (max-width: 1000px) {
   .center {
     width: 90vw;
+  }
+
+  .content {
+    width: 90vw !important;
+  }
+}
+
+@media screen and (max-width: 570px) {
+  .input-line {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+}
+
+canvas {
+  position: fixed;
+  z-index: -1;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+}
+
+.top-bar {
+  position: fixed;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.left-section {
+  width: 400px;
+  text-align: center;
+}
+
+.right-section {
+  width: 300px;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+#room-code {
+  font-size: 4.9rem;
+  font-family: monospace;
+}
+
+@media screen and (max-width: 680px) {
+  .center {
+    width: 90vw;
+  }
+
+  .left-section h1 {
+    font-size: 17vw;
+  }
+
+  .left-section {
+    width: 55vw;
+  }
+
+  .right-section {
+    width: 45vw;
+  }
+
+  .right-section h3 {
+    font-size: 6vw;
+  }
+
+  #room-code {
+    font-size: 12vw;
+  }
+}
+
+.content {
+  text-align: center;
+  width: 880px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 12rem;
+}
+
+.bottom-answer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+#postForm {
+  position: relative;
+  height: auto;
+  min-height: 150px;
+  width: 980px;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: rgba(40, 11, 72, 0.5);
+}
+
+.answer-line {
+  color: #777;
+  width: 750px;
+}
+
+#postForm .input-line {
+  width: 900px;
+}
+
+@media screen and (max-width: 980px) {
+  #postForm {
+    position: relative;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: rgba(40, 11, 72, 0.5);
+    padding-bottom: 1rem;
+    border-radius: 20px 20px 0 0;
+  }
+
+  #postForm .input-line {
+    width: 92vw;
+  }
+
+  .bottom-answer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding-bottom: 0;
+    margin-bottom: 0;
   }
 }
