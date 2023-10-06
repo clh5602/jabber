@@ -104,7 +104,7 @@ label {
 }
 
 form {
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: rgba(255, 255, 255, 0.21);
   border-radius: 20px;
   display: flex;
   justify-content: space-around;
@@ -210,7 +210,7 @@ canvas {
   position: relative;
   height: auto;
   min-height: 150px;
-  width: 980px;
+  width: 1280px;
   margin-left: auto;
   margin-right: auto;
   background-color: rgba(40, 11, 72, 0.5);
@@ -218,14 +218,22 @@ canvas {
 
 .answer-line {
   color: #777;
-  width: 750px;
+  width: 950px;
 }
 
 #postForm .input-line {
-  width: 900px;
+  width: 1100px;
+  padding-bottom: 1rem;
 }
 
-@media screen and (max-width: 980px) {
+#prompt {
+  margin-left: 2rem;
+  margin-right: 2rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+@media screen and (max-width: 1280px) {
   #postForm {
     position: relative;
     width: 100%;

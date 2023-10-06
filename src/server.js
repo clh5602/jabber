@@ -1,10 +1,10 @@
-const http = require('http'); // pull in the http server module
-const url = require('url'); // pull in the url module
+const http = require('http');
+const url = require('url');
 // pull in the query string module
 const query = require('querystring');
 
 // pull in the response handler files
-const htmlHandler = require('./htmlResponses.js');
+const clientHandler = require('./clientResponses.js');
 // pull in our json response handler file
 const requestHandler = require('./dataResponses.js');
 
@@ -22,7 +22,7 @@ const urlStruct = {
     '/notReal': tbd
   },
   'POST': {
-    '/addUser': tbd
+    '/createRoom': tbd // param of room code, 
   },
   notFound: requestHandler.notFound,
 };

@@ -1,4 +1,3 @@
-
 import { Floater } from "./floater.js";
 
 let ctx, canvas, gradient;
