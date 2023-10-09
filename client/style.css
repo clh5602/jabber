@@ -19,7 +19,7 @@ body {
 }
 
 #main {
-  height: 60vh;
+  height: 80vh;
 }
 
 h1 {
@@ -255,4 +255,16 @@ canvas {
     padding-bottom: 0;
     margin-bottom: 0;
   }
+}
+
+#status {
+  font-size: 2rem;
+}
+
+#message {
+  font-size: 1.5rem;
+}
+
+section {
+  margin-bottom: 1rem;
 }

@@ -22,7 +22,12 @@
     <div class="center">
       <h1>jabber</h1>
 
-      <form id="joinForm" action="/joinRoom" method="get">
+      <section>
+        <h2 id="status"></h2>
+        <h3 id="message"></h3>
+      </section>
+
+      <form id="joinForm" action="/join-room" method="get">
         <h3>~ join a room ~</h3>
         <div class="input-line">
           <input id="codeField" class="text-line" type="text" placeholder="ENTER ROOM CODE" />
@@ -32,7 +37,7 @@
 
       <h2>or</h2>
 
-      <form id="createForm" action="/createRoom" method="get">
+      <form id="createForm" action="/find-room" method="get">
         <h3>~ create a room ~</h3>
         <div class="input-line">
           <input id="promptField" type="text" class="text-line" placeholder="ENTER A PROMPT" />
