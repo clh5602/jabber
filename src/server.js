@@ -24,6 +24,7 @@ const urlStruct = {
     '/favicon.ico': clientHandler.getFavicon,
     // JSON data
     '/join-room': clientHandler.getRoomHTML,
+    '/locate-room': requestHandler.roomExists,
     //'/find-room': tbd,
     //'/host-room': tbd,
   },
@@ -78,7 +79,7 @@ const onRequest = (request, response) => {
 
   // SPECIAL CASE : '/join-room'
   // returns HTML, or json if fail
-  if (parsedUrl.pathname === "/join-room") {
+  if (parsedUrl.pathname === "/join-room" || parsedUrl.pathname === "/locate-room") {
     // first, get the room id from params
     const providedID = params.code;
 

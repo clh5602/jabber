@@ -150,6 +150,17 @@ const noRoomID = (request, response) => {
   return respondJSON(request, response, 400, responseObj);
 };
 
+// function that gets called when a request does not contain
+// the room ID
+const roomExists = (request, response, id) => {
+  const responseObj = {
+    id: 'Success',
+    message: 'Joining room...',
+    newRequest: `/join-room?code=${id}`
+  };
+
+  return respondJSON(request, response, 200, responseObj);
+};
 
 // 404 for a "HEAD" request
 const notFoundMeta = (request, response) => respondJSONMeta(request, response, 404);
@@ -165,4 +176,5 @@ module.exports = {
   badRoomID,
   noRoomID,
   getRoom,
+  roomExists
 };

@@ -3,8 +3,6 @@ const handleResponse = async (response, parseResponse, params) => {
 
     response.text().then((resText) => {
 
-        const contentType = response.headers.get('Content-Type');
-
         const statusHeader = document.querySelector('#status');
         const messageHeader = document.querySelector('#message');
 
@@ -41,8 +39,10 @@ const handleResponse = async (response, parseResponse, params) => {
 
             if (response.status == 200 && obj.newRequest) {
                 // room exists, now get html
-                const fetchPromise = fetch(obj.newRequest + params.formData, params.options);
-                fetchPromise.then((response) => { handleResponse(response) });
+                // window.location.href
+                window.location.assign(`https://${window.location.hostname}${obj.newRequest}`);
+                //const fetchPromise = fetch(obj.newRequest + params.formData, params.options);
+                //fetchPromise.then((response) => { handleResponse(response) });
             }
         }
     });
