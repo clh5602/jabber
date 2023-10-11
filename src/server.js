@@ -25,7 +25,7 @@ const urlStruct = {
     // JSON data
     '/join-room': clientHandler.getRoomHTML,
     '/locate-room': requestHandler.roomExists,
-    //'/find-room': tbd,
+    '/find-room': requestHandler.findRoom,
     //'/host-room': tbd,
   },
   'HEAD': {
@@ -33,7 +33,7 @@ const urlStruct = {
     //'/notReal': tbd
   },
   'POST': {
-    //'/claim-room': tbd // param of room code, 
+    '/claim-room': requestHandler.claimRoom // param of room code, and prompt
   },
   notFound: requestHandler.notFound,
 };

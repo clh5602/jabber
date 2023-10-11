@@ -56,6 +56,50 @@ const getRoom = (id) => {
   return rooms[id];
 };
 
+// searches through the list of rooms and
+// returns its id to the client. DOES NOT modify the room's state
+const findRoom = (request, response) => {
+
+  // find the first empty room
+  for (let id of Object.keys(rooms)) {
+    if (!rooms[id].occupied) {
+      // empty room found!
+      const responseObj = {
+        emptyID: id,
+        message: `Empty room located at ${id}.`,
+      };
+
+      return respondJSON(request, response, 200, responseObj);
+    }
+  }
+
+  // then there are no empty rooms
+  const responseObj = {
+    id: 'roomsOccupied',
+    message: 'There are no empty rooms. Please try again later.',
+  };
+
+  return respondJSON(request, response, 503, responseObj);
+};
+
+const claimRoom = (request, response, params) => {
+  // verify room exits
+  if (!params.code) {
+    return noRoomID(request, response);
+  }
+  if (!rooms[params.code]) {
+    return badRoomID(request, response);
+  }
+
+  // make sure prompt was provided as well
+  if (!params.prompt) {
+    return noPrompt(request, response);
+  }
+
+  // ok, now we have everything
+  
+}
+ 
 // function to respond with a json object
 // takes request, response, status code and object to send
 const respondJSON = (request, response, status, object) => {
@@ -150,6 +194,15 @@ const noRoomID = (request, response) => {
   return respondJSON(request, response, 400, responseObj);
 };
 
+const noPrompt = (request, response) => {
+  const responseObj = {
+    id: 'noPrompt',
+    message: 'Please provide a prompt for the new room.',
+  };
+
+  return respondJSON(request, response, 400, responseObj);
+};
+
 // function that gets called when a request does not contain
 // the room ID
 const roomExists = (request, response, id) => {
@@ -176,5 +229,7 @@ module.exports = {
   badRoomID,
   noRoomID,
   getRoom,
-  roomExists
+  roomExists,
+  findRoom,
+  claimRoom
 };

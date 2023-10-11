@@ -13,7 +13,7 @@ const handleResponse = async (response, parseResponse, params) => {
         //Update header based on status code
         switch (response.status) {
             case 200: //Success
-                statusHeader.innerHTML = "Success";
+                statusHeader.innerHTML = "Success!";
                 break;
             case 201: //Created
                 statusHeader.innerHTML = "Created";
@@ -27,22 +27,41 @@ const handleResponse = async (response, parseResponse, params) => {
             case 404: //Not Found
                 statusHeader.innerHTML = "Not Found";
                 break;
+            case 503: //Service Unavailable
+                statusHeader.innerHTML = "All rooms are full!";
+                break;
             default: //Anything Else
                 statusHeader.innerHTML = "Status Code not Implemented";
                 break;
         }
 
-        if (parseResponse && (response.status == 400 || response.status == 404 || response.status == 200)) {
+        if (parseResponse && (response.status != 204)) {
             let obj = JSON.parse(resText);
 
             messageHeader.innerHTML = obj.message;
 
-            if (response.status == 200 && obj.newRequest) {
-                // room exists, now get html
-                // window.location.href
-                window.location.assign(`https://${window.location.hostname}${obj.newRequest}`);
-                //const fetchPromise = fetch(obj.newRequest + params.formData, params.options);
-                //fetchPromise.then((response) => { handleResponse(response) });
+            if (response.status == 200 || response.status == 201) {
+                if (obj.newRequest) {
+                    // room exists, now get html
+                    window.location.assign(`${window.location.hostname}${obj.newRequest}`);
+                }
+
+                if (obj.emptyID) {
+                    // this happens after GETting an empty room.
+                    // now, claim that room via POST
+                    const options = {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/x-www-form-urlencoded',
+                          'Accept': 'application/json'
+                        },
+                        body: `prompt=${params.prompt.slice(0, 1000)}&code=${obj.emptyID}`
+                      }
+
+                    // also limiting prompts to 1000 chars here
+                    const fetchPromise = fetch(`/claim-room`, options);
+                    fetchPromise.then((response) => { handleResponse(response, true) });
+                }
             }
         }
     });
@@ -68,7 +87,7 @@ const joinFormSubmit = async (joinForm) => {
     const url = joinAction + formData;
 
     const fetchPromise = fetch(url, options);
-    fetchPromise.then((response) => { handleResponse(response, true, {formData, options}) });
+    fetchPromise.then((response) => { handleResponse(response, true) });
 }
 
 // makes either a GET or HEAD request to the correct URL when the form is submitted
@@ -81,14 +100,14 @@ const createFormSubmit = async (createForm) => {
 
     // configure options
     const options = {
-        method: method,
+        method: createMethod,
         headers: {
             'Accept': 'application/json'
         },
     }
 
-    const fetchPromise = fetch(url, options);
-    fetchPromise.then((response) => { handleResponse(response, options.method === "GET") });
+    const fetchPromise = fetch(createAction, options);
+    fetchPromise.then((response) => { handleResponse(response, options.method === "GET", { prompt }) });
 }
 
 const init = () => {
