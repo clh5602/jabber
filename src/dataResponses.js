@@ -16,7 +16,7 @@ const generateID = () => {
   let resultingID = "";
 
   for (let i = 0; i < ID_LENGTH; i++) {
-    const randomInt = Math.floor(Math.random() * 36);
+    let randomInt = Math.floor(Math.random() * 36);
     let newChar = '';
 
     if (randomInt < 10) {
@@ -55,6 +55,77 @@ const populateRooms = (rooms) => {
 const getRoom = (id) => {
   return rooms[id];
 };
+
+// function that gets called when a request is not recognized -
+// just throws a 404 with an obj response
+const notFound = (request, response) => {
+  const responseObj = {
+    id: 'notFound',
+    message: 'The page you are looking for was not found.',
+  };
+
+  return respondJSON(request, response, 404, responseObj);
+};
+
+// function that gets called when a request does not have correct params -
+// mainly when a room is not recognized
+const badRoomID = (request, response) => {
+  const responseObj = {
+    id: 'badRoomID',
+    message: 'The room you are looking for was not found. Try a different ID.',
+  };
+
+  return respondJSON(request, response, 400, responseObj);
+};
+
+// function that gets called when a request does not contain
+// the room ID
+const noRoomID = (request, response) => {
+  const responseObj = {
+    id: 'noRoomID',
+    message: 'Please provide a room ID.',
+  };
+
+  return respondJSON(request, response, 400, responseObj);
+};
+
+const noPrompt = (request, response) => {
+  const responseObj = {
+    id: 'noPrompt',
+    message: 'Please provide a prompt for the new room.',
+  };
+
+  return respondJSON(request, response, 400, responseObj);
+};
+
+// function that gets called when a request does not contain
+// the room ID
+const roomExists = (request, response, id) => {
+  const responseObj = {
+    id: 'Success',
+    message: 'Joining room...',
+    newRequest: `/join-room?code=${id}`
+  };
+
+  return respondJSON(request, response, 200, responseObj);
+};
+
+// when attempting to claim a room that has already
+// been claimed
+const roomClash = (request, response, prompt) => {
+  const responseObj = {
+    id: 'roomClash',
+    message: 'Finding new empty room...',
+    newRequest: `/find-room`,
+    oldPrompt: prompt
+  };
+
+  // 409 Conflict
+  return respondJSON(request, response, 409, responseObj);
+};
+
+// 404 for a "HEAD" request
+const notFoundMeta = (request, response) => respondJSONMeta(request, response, 404);
 
 // searches through the list of rooms and
 // returns its id to the client. DOES NOT modify the room's state
@@ -97,9 +168,28 @@ const claimRoom = (request, response, params) => {
   }
 
   // ok, now we have everything
-  
+
+  // there's a chance that if two users create a room at
+  // the same time, they could be attempting to claim the same room.
+  // if the room attempting to be claimed has already been claimed,
+  // throw an error, and make the client find a different room
+  if (rooms[params.code].occupied) {
+    return roomClash(request, response, params.prompt);
+  }
+
+  // NOW there should be no problems
+  rooms[params.code].claimRoom(params.prompt);
+
+  // return success
+  const responseObj = {
+    id: 'Success',
+    message: 'Joining room...',
+    newRequest: `/join-room?code=${params.code}`
+  };
+
+  return respondJSON(request, response, 201, responseObj);
 }
- 
+
 // function to respond with a json object
 // takes request, response, status code and object to send
 const respondJSON = (request, response, status, object) => {
@@ -161,64 +251,10 @@ const addUser = (request, response, body) => {
   return respondJSONMeta(request, response, responseCode);
 };
 
-// function that gets called when a request is not recognized -
-// just throws a 404 with an obj response
-const notFound = (request, response) => {
-  const responseObj = {
-    id: 'notFound',
-    message: 'The page you are looking for was not found.',
-  };
 
-  return respondJSON(request, response, 404, responseObj);
-};
 
-// function that gets called when a request does not have correct params -
-// mainly when a room is not recognized
-const badRoomID = (request, response) => {
-  const responseObj = {
-    id: 'badRoomID',
-    message: 'The room you are looking for was not found. Try a different ID.',
-  };
+populateRooms(rooms);
 
-  return respondJSON(request, response, 400, responseObj);
-};
-
-// function that gets called when a request does not contain
-// the room ID
-const noRoomID = (request, response) => {
-  const responseObj = {
-    id: 'noRoomID',
-    message: 'Please provide a room ID.',
-  };
-
-  return respondJSON(request, response, 400, responseObj);
-};
-
-const noPrompt = (request, response) => {
-  const responseObj = {
-    id: 'noPrompt',
-    message: 'Please provide a prompt for the new room.',
-  };
-
-  return respondJSON(request, response, 400, responseObj);
-};
-
-// function that gets called when a request does not contain
-// the room ID
-const roomExists = (request, response, id) => {
-  const responseObj = {
-    id: 'Success',
-    message: 'Joining room...',
-    newRequest: `/join-room?code=${id}`
-  };
-
-  return respondJSON(request, response, 200, responseObj);
-};
-
-// 404 for a "HEAD" request
-const notFoundMeta = (request, response) => respondJSONMeta(request, response, 404);
-
-//populateRooms(rooms);
 rooms['1111'] = new Room.Room('1111');
 rooms['1111'].occupied = true;
 

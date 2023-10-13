@@ -27,6 +27,9 @@ const handleResponse = async (response, parseResponse, params) => {
             case 404: //Not Found
                 statusHeader.innerHTML = "Not Found";
                 break;
+            case 409: //Server Conflict
+                statusHeader.innerHTML = "Room Conflict";
+                break;
             case 503: //Service Unavailable
                 statusHeader.innerHTML = "All rooms are full!";
                 break;
@@ -40,27 +43,47 @@ const handleResponse = async (response, parseResponse, params) => {
 
             messageHeader.innerHTML = obj.message;
 
-            if (response.status == 200 || response.status == 201) {
-                if (obj.newRequest) {
-                    // room exists, now get html
-                    window.location.assign(`${window.location.hostname}${obj.newRequest}`);
-                }
-
+            if (response.status == 200 || response.status == 201 || response.status == 409) {
                 if (obj.emptyID) {
                     // this happens after GETting an empty room.
                     // now, claim that room via POST
                     const options = {
                         method: 'POST',
                         headers: {
-                          'Content-Type': 'application/x-www-form-urlencoded',
-                          'Accept': 'application/json'
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Accept': 'application/json'
                         },
                         body: `prompt=${params.prompt.slice(0, 1000)}&code=${obj.emptyID}`
-                      }
+                    }
 
                     // also limiting prompts to 1000 chars here
                     const fetchPromise = fetch(`/claim-room`, options);
                     fetchPromise.then((response) => { handleResponse(response, true) });
+                    return;
+                }
+
+                if (obj.oldPrompt) {
+                    // there was a room clash, need to get another free room
+                    
+                    // configure options
+                    const options = {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                    }
+
+                    const fetchPromise = fetch(obj.newRequest, options);
+                    fetchPromise.then((response) => { handleResponse(response, options.method === "GET", { prompt: obj.oldPrompt }) });
+                    return;
+                }
+
+                if (obj.newRequest) {
+                    // room exists, now get html
+                    console.log(window.location.hostname)
+                    console.log(obj.newRequest)
+                    window.location.assign(`${obj.newRequest}`);
+                    return;
                 }
             }
         }
@@ -122,7 +145,7 @@ const init = () => {
 
     const createRoom = (e) => {
         e.preventDefault();
-        createFormSubmit(joinForm);
+        createFormSubmit(createForm);
         return false;
     }
 
