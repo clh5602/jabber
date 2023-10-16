@@ -26,7 +26,7 @@ const urlStruct = {
     '/join-room': clientHandler.getRoomHTML,
     '/locate-room': requestHandler.roomExists,
     '/find-room': requestHandler.findRoom,
-    //'/host-room': tbd,
+    '/answers': requestHandler.getResponses
   },
   'HEAD': {
     //'/find-room': tbd,
@@ -106,7 +106,7 @@ const onRequest = (request, response) => {
     if (request.method === 'POST') {
       return parseBody(request, response, urlStruct[request.method][parsedUrl.pathname]);
     }
-    return urlStruct[request.method][parsedUrl.pathname](request, response);
+    return urlStruct[request.method][parsedUrl.pathname](request, response, params);
   }
 
   return urlStruct[request.method].notFound(request, response);

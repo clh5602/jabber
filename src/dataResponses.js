@@ -124,6 +124,23 @@ const roomClash = (request, response, prompt) => {
   return respondJSON(request, response, 409, responseObj);
 };
 
+const getAnswers = (request, response, params) => {
+  // verify room exits
+  if (!params.code) {
+    return noRoomID(request, response);
+  }
+  if (!rooms[params.code]) {
+    return badRoomID(request, response);
+  }
+
+  // provide the room's list of prompts
+  const responseObj = {
+    answers: rooms[params.code].answers
+  };
+
+  return respondJSON(request, response, 200, responseObj);
+};
+
 // 404 for a "HEAD" request
 const notFoundMeta = (request, response) => respondJSONMeta(request, response, 404);
 
@@ -267,5 +284,6 @@ module.exports = {
   getRoom,
   roomExists,
   findRoom,
-  claimRoom
+  claimRoom,
+  getResponses
 };

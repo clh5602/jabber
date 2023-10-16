@@ -118,7 +118,7 @@ form {
     width: 90vw;
   }
 
-  .content {
+  #content {
     width: 90vw !important;
   }
 }
@@ -191,7 +191,7 @@ canvas {
   }
 }
 
-.content {
+#content {
   text-align: center;
   width: 880px;
   margin-left: auto;
@@ -213,7 +213,7 @@ canvas {
   width: 1280px;
   margin-left: auto;
   margin-right: auto;
-  background-color: rgba(40, 11, 72, 0.5);
+  background-color: rgba(40, 11, 72, 0.9);
 }
 
 .answer-line {
@@ -235,11 +235,7 @@ canvas {
 
 @media screen and (max-width: 1280px) {
   #postForm {
-    position: relative;
     width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    background-color: rgba(40, 11, 72, 0.5);
     padding-bottom: 1rem;
     border-radius: 20px 20px 0 0;
   }
@@ -267,4 +263,36 @@ canvas {
 
 section {
   margin-bottom: 1rem;
+}
+
+.response {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: rgba(40, 11, 72, 0.5);
+  padding-bottom: 2rem;
+  padding-top: 2rem;
+  text-align: left;
+  border-radius: 20px 20px 20px 0;
+  font-size: 2rem;
+  color: white;
+  text-shadow: rgb(0, 0, 0) 1px 0 10px;
+  margin-bottom: 0;
+}
+
+.triangle {
+  content: "";
+  width: 0px;
+  height: 0px;
+  margin-top: 0;
+  margin-bottom: 0;
+  border-left: 10px solid rgba(40, 11, 72, 0.5);
+  border-right: 10px solid transparent;
+  border-top: 10px solid rgba(40, 11, 72, 0.5);
+  border-bottom: 10px solid transparent;
+}
+
+p {
+  margin: 0 2rem;
+  padding: 0;
 }
