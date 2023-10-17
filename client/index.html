@@ -30,7 +30,7 @@
       <form id="joinForm" action="/locate-room" method="get">
         <h3>~ join a room ~</h3>
         <div class="input-line">
-          <input id="codeField" class="text-line" type="text" placeholder="ENTER ROOM CODE" />
+          <input id="codeField" maxlength="4" class="text-line" type="text" placeholder="ENTER ROOM CODE" />
           <input type="submit" class="button button-hover" value="join" />
         </div>
       </form>
@@ -40,7 +40,7 @@
       <form id="createForm" action="/find-room" method="get">
         <h3>~ create a room ~</h3>
         <div class="input-line">
-          <input id="promptField" type="text" class="text-line" placeholder="ENTER A PROMPT" />
+          <input id="promptField" maxlength="1000" type="text" class="text-line" placeholder="ENTER A PROMPT" />
           <input type="submit" class="button button-hover" value="create" />
         </div>
       </form>

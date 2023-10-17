@@ -296,4 +296,6 @@ section {
 p {
   margin: 0 2rem;
   padding: 0;
+  word-break: break-all;
+  white-space: normal;
 }

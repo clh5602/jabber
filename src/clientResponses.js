@@ -25,7 +25,6 @@ const getHTMLPage = (request, response, page) => {
 
 // sends the room html to the client after editing it with room code and prompt
 const getRoomHTML = (request, response, roomCode, prompt, isHost) => {
-  
   // build new HTML
   let newHTMLString = roomHTML.toString();
   newHTMLString = newHTMLString.replace('EX_ROOM_CODE', roomCode); // populate with room code
@@ -41,7 +40,7 @@ const getRoomHTML = (request, response, roomCode, prompt, isHost) => {
   }
 
   return getHTMLPage(request, response, newHTMLString);
-}
+};
 
 // function to get css page
 const getCSS = (request, response, css) => {
@@ -81,5 +80,5 @@ module.exports = {
   getFloaterJS,
   getIndexJS,
   getRoomJS,
-  getFavicon
+  getFavicon,
 };

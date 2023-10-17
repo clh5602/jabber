@@ -56,20 +56,18 @@ const handleResponse = async (response, parseResponse, params) => {
                     // flag for scrolling to bottom
                     let scrollFlag = (!roomLoaded || contentHTML.scrollHeight - (window.scrollY + window.innerHeight) < 20);
 
-                    for (let i = numAnswers - 1; i >= 0; i--) {
+                    for (let i = PREV_NUM_ANSWERS; i < numAnswers; i++) {
                         let answer = obj.answers[i];
-
-                        if (PREV_NUM_ANSWERS - 1 >= i) {
-                            // now reaching responses that have already been parsed
-                            break;
-                        }
 
                         let postDiv = document.createElement("div");
                         let triangleDiv = document.createElement("div");
+                        let postContent = document.createElement("p");
 
-                        postDiv.innerHTML = `<p>${answer}</p>`;
                         postDiv.classList.add('response');
                         triangleDiv.classList.add('triangle');
+                        
+                        postContent.textContent = answer;
+                        postDiv.appendChild(postContent);                        
 
                         contentHTML.appendChild(postDiv);
                         contentHTML.appendChild(triangleDiv);

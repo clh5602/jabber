@@ -13,7 +13,7 @@ const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 // key:value object to look up URL routes to specific functions
 const urlStruct = {
-  'GET': {
+  GET: {
     // client stuff
     '/': clientHandler.getIndexHTML,
     '/style.css': clientHandler.getGlobalCSS,
@@ -22,19 +22,23 @@ const urlStruct = {
     '/src/index.js': clientHandler.getIndexJS,
     '/src/room.js': clientHandler.getRoomJS,
     '/favicon.ico': clientHandler.getFavicon,
-    // JSON data
     '/join-room': clientHandler.getRoomHTML,
+    // JSON data
     '/locate-room': requestHandler.roomExists,
     '/find-room': requestHandler.findRoom,
-    '/answers': requestHandler.getAnswers
+    '/answers': requestHandler.getAnswers,
+    notFound: requestHandler.notFound,
   },
-  'HEAD': {
-    //'/find-room': tbd,
-    //'/notReal': tbd
+  HEAD: {
+    '/locate-room': requestHandler.roomExistsMeta,
+    '/find-room': requestHandler.findRoomMeta,
+    '/answers': requestHandler.getAnswersMeta,
+    notFound: requestHandler.notFoundMeta,
   },
-  'POST': {
-    '/claim-room': requestHandler.claimRoom, // param of room code, and prompt
-    '/add-answer': requestHandler.addAnswer
+  POST: {
+    '/claim-room': requestHandler.claimRoom,
+    '/add-answer': requestHandler.addAnswer,
+    notFound: requestHandler.notFound,
   },
   notFound: requestHandler.notFound,
 };
@@ -80,13 +84,16 @@ const onRequest = (request, response) => {
 
   // SPECIAL CASE : '/join-room'
   // returns HTML, or json if fail
-  if (parsedUrl.pathname === "/join-room" || parsedUrl.pathname === "/locate-room") {
+  if (parsedUrl.pathname === '/join-room' || parsedUrl.pathname === '/locate-room') {
+    const isHeadRequest = (request.method === 'HEAD');
+
     // first, get the room id from params
     const providedID = params.code;
 
     // verify ID was provided
     if (!providedID) {
-      return requestHandler.noRoomID(request, response);
+      return isHeadRequest ? requestHandler.noRoomIDMeta(request, response)
+        : requestHandler.noRoomID(request, response);
     }
 
     // get room associated with ID
@@ -94,11 +101,13 @@ const onRequest = (request, response) => {
 
     // verify room exists, and is occupied
     if (!providedRoom || !providedRoom.occupied) {
-      return requestHandler.badRoomID(request, response);
+      return isHeadRequest ? requestHandler.badRoomIDMeta(request, response)
+        : requestHandler.badRoomID(request, response);
     }
 
     // get the room's HTML
-    return urlStruct[request.method][parsedUrl.pathname](request, response, providedRoom.id, providedRoom.prompt);
+    const callback = urlStruct[request.method][parsedUrl.pathname];
+    return callback(request, response, providedRoom.id, providedRoom.prompt);
   }
 
   // if function exists, call it!

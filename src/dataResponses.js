@@ -1,19 +1,18 @@
 const Room = require('./Room.js'); // Room class
 
 const rooms = {};
-const NUM_ROOMS = 3;
+const NUM_ROOMS = 100;
 const ID_LENGTH = 4;
+const CHECK_INTERVAL = 60 * 1000; // 60 seconds, or 1 minute
 
 const CHAR_NUM_OFFSET = 48; // unicode '0'
 const CHAR_LETTER_OFFSET = 65; // unicode 'A'
-
 
 // creates a random ID consisting of four digits,
 // with values from 0-9 and A-Z
 // NOTE: ID is not guaranteed to be unique
 const generateID = () => {
-
-  let resultingID = "";
+  let resultingID = '';
 
   for (let i = 0; i < ID_LENGTH; i++) {
     let randomInt = Math.floor(Math.random() * 36);
@@ -21,8 +20,7 @@ const generateID = () => {
 
     if (randomInt < 10) {
       newChar = String.fromCharCode(randomInt + CHAR_NUM_OFFSET);
-    }
-    else {
+    } else {
       randomInt -= 10;
       newChar = String.fromCharCode(randomInt + CHAR_LETTER_OFFSET);
     }
@@ -38,11 +36,11 @@ const generateID = () => {
 
 // fills the rooms obj with a bunch of unoccupied
 // rooms. The amount of rooms is based on "NUM_ROOMS"
-const populateRooms = (rooms) => {
+const populateRooms = () => {
   let i = 0;
 
   while (i < NUM_ROOMS) {
-    let newID = generateID();
+    const newID = generateID();
 
     if (!rooms[newID]) {
       i++;
@@ -67,9 +65,7 @@ const respondJSONMeta = (request, response, status) => {
 };
 
 // gets a room obj from the rooms object
-const getRoom = (id) => {
-  return rooms[id];
-};
+const getRoom = (id) => rooms[id];
 
 // function that gets called when a request is not recognized -
 // just throws a 404 with an obj response
@@ -92,6 +88,7 @@ const badRoomID = (request, response) => {
 
   return respondJSON(request, response, 400, responseObj);
 };
+const badRoomIDMeta = (request, response) => respondJSONMeta(request, response, 400);
 
 // function that gets called when a request does not contain
 // the room ID
@@ -103,6 +100,7 @@ const noRoomID = (request, response) => {
 
   return respondJSON(request, response, 400, responseObj);
 };
+const noRoomIDMeta = (request, response) => respondJSONMeta(request, response, 400);
 
 const noPrompt = (request, response) => {
   const responseObj = {
@@ -128,11 +126,12 @@ const roomExists = (request, response, id) => {
   const responseObj = {
     id: 'Success',
     message: 'Joining room...',
-    newRequest: `/join-room?code=${id}`
+    newRequest: `/join-room?code=${id}`,
   };
 
   return respondJSON(request, response, 200, responseObj);
 };
+const roomExistsMeta = (request, response) => respondJSONMeta(request, response, 200);
 
 // when attempting to claim a room that has already
 // been claimed
@@ -140,8 +139,8 @@ const roomClash = (request, response, prompt) => {
   const responseObj = {
     id: 'roomClash',
     message: 'Finding new empty room...',
-    newRequest: `/find-room`,
-    oldPrompt: prompt
+    newRequest: '/find-room',
+    oldPrompt: prompt,
   };
 
   // 409 Conflict
@@ -159,10 +158,20 @@ const getAnswers = (request, response, params) => {
 
   // provide the room's list of prompts
   const responseObj = {
-    answers: rooms[params.code].answers
+    answers: rooms[params.code].answers,
   };
 
   return respondJSON(request, response, 200, responseObj);
+};
+const getAnswersMeta = (request, response, params) => {
+  // verify room exits
+  if (!params.code) {
+    return noRoomIDMeta(request, response);
+  }
+  if (!rooms[params.code]) {
+    return badRoomIDMeta(request, response);
+  }
+  return respondJSONMeta(request, response, 200);
 };
 
 // 404 for a "HEAD" request
@@ -171,9 +180,10 @@ const notFoundMeta = (request, response) => respondJSONMeta(request, response, 4
 // searches through the list of rooms and
 // returns its id to the client. DOES NOT modify the room's state
 const findRoom = (request, response) => {
-
   // find the first empty room
-  for (let id of Object.keys(rooms)) {
+  const roomKeys = Object.keys(rooms);
+  for (let i = 0; i < roomKeys.length; i++) {
+    const id = roomKeys[i];
     if (!rooms[id].occupied) {
       // empty room found!
       const responseObj = {
@@ -193,9 +203,19 @@ const findRoom = (request, response) => {
 
   return respondJSON(request, response, 503, responseObj);
 };
+const findRoomMeta = (request, response) => {
+  // find the first empty room
+  const roomKeys = Object.keys(rooms);
+  for (let i = 0; i < roomKeys.length; i++) {
+    const id = roomKeys[i];
+    if (!rooms[id].occupied) {
+      return respondJSONMeta(request, response, 200);
+    }
+  }
+  return respondJSONMeta(request, response, 503);
+};
 
 const addAnswer = (request, response, params) => {
-  
   // verify room exits
   if (!params.code) {
     return noRoomID(request, response);
@@ -203,8 +223,6 @@ const addAnswer = (request, response, params) => {
   if (!rooms[params.code]) {
     return badRoomID(request, response);
   }
-
-  
 
   // make sure answer was provided as well
   if (!params.answer) {
@@ -217,7 +235,7 @@ const addAnswer = (request, response, params) => {
 
   // return success
   return respondJSONMeta(request, response, 204);
-}
+};
 
 const claimRoom = (request, response, params) => {
   // verify room exits
@@ -250,29 +268,49 @@ const claimRoom = (request, response, params) => {
   const responseObj = {
     id: 'Success',
     message: 'Joining room...',
-    newRequest: `/join-room?code=${params.code}`
+    newRequest: `/join-room?code=${params.code}`,
   };
 
   return respondJSON(request, response, 201, responseObj);
-}
-
-// return user object as JSON
-const getUsersMeta = (request, response) => {
-  respondJSONMeta(request, response, 200);
 };
 
-populateRooms(rooms);
+// responsible for free-ing up inactive rooms
+const roomCleanse = () => {
+  setTimeout(roomCleanse, CHECK_INTERVAL);
+
+  const currentTime = new Date().getTime();
+
+  const roomKeys = Object.keys(rooms);
+  for (let i = 0; i < roomKeys.length; i++) {
+    rooms[roomKeys[i]].checkTimeout(currentTime);
+  }
+};
+
+const init = () => {
+  // creates NUM_ROOMS amount of rooms
+  populateRooms();
+
+  // timeout for cleansing old rooms
+  roomCleanse();
+};
+
+init();
 
 // exports to set functions to public
 module.exports = {
   notFound,
   notFoundMeta,
   badRoomID,
+  badRoomIDMeta,
   noRoomID,
+  noRoomIDMeta,
   getRoom,
   roomExists,
   findRoom,
   claimRoom,
   getAnswers,
-  addAnswer
+  addAnswer,
+  roomExistsMeta,
+  findRoomMeta,
+  getAnswersMeta,
 };
