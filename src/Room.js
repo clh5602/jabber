@@ -1,13 +1,6 @@
 // how long a room should remain inactive for before closing (minutes)
 const roomTimeout = 120;
 
-class Answer {
-    constructor(answerString) {
-        this.answer = answerString;
-        this.creation = new Date();
-    }
-}
-
 class Room {
     constructor(id) {
         this.id = id;
@@ -36,7 +29,7 @@ class Room {
     }
 
     addAnswer(answer) {
-        this.answers.push(new Answer(answer));
+        this.answers.push(answer);
         this.updated = true;
         this.timeLastEdited = new Date();
     }

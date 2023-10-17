@@ -1,5 +1,8 @@
 let ROOM_ID;
-let lastResponseTime;
+let PREV_NUM_ANSWERS = 0;
+let contentHTML;
+
+let roomLoaded = false;
 
 //A function for handling our fetch response. Read init and sendFetch first.
 const handleResponse = async (response, parseResponse, params) => {
@@ -48,25 +51,36 @@ const handleResponse = async (response, parseResponse, params) => {
                 if (obj.answers) {
                     // happens after requesting a list of all answers
                     // populate the html
-                    const content = document.getElementById(`content`);
                     const numAnswers = obj.answers.length;
+
+                    // flag for scrolling to bottom
+                    let scrollFlag = (!roomLoaded || contentHTML.scrollHeight - (window.scrollY + window.innerHeight) < 20);
 
                     for (let i = numAnswers - 1; i >= 0; i--) {
                         let answer = obj.answers[i];
 
-                        if (lastResponseTime && lastResponseTime.getTime() >= answer.creation.getTime()) {
+                        if (PREV_NUM_ANSWERS - 1 >= i) {
                             // now reaching responses that have already been parsed
                             break;
                         }
 
-                        content.innerHTML = `<div class="response"><p>${answer.answer}</p></div>
-                        <div class="triangle"></div>` + content.innerHTML;
+                        let postDiv = document.createElement("div");
+                        let triangleDiv = document.createElement("div");
+
+                        postDiv.innerHTML = `<p>${answer}</p>`;
+                        postDiv.classList.add('response');
+                        triangleDiv.classList.add('triangle');
+
+                        contentHTML.appendChild(postDiv);
+                        contentHTML.appendChild(triangleDiv);
                     }
 
-                    if (numAnswers > 0) {
-                        lastResponseTime = obj.answers[numAnswers - 1];
-                    }
+                    PREV_NUM_ANSWERS = numAnswers;
 
+                    if (scrollFlag) {
+                        window.scroll({top: contentHTML.scrollHeight});
+                        roomLoaded = true;
+                    }
                     return;
                 }
             }
@@ -77,31 +91,34 @@ const handleResponse = async (response, parseResponse, params) => {
 // function called when attempting to join a room
 const postFormSubmit = async (postForm) => {
 
-    const postForm = joinForm.getAttribute('action');
-    const postForm = joinForm.getAttribute('method').toUpperCase();
+    const postAction = postForm.getAttribute('action');
+    const postMethod = postForm.getAttribute('method').toUpperCase();
 
-    const answer = document.getElementById('answerField').value.trim();
+    const answerField = document.getElementById('answerField');
 
-    const formData = `?code=${ROOM_ID}&answer=${answer}`;
+    const answer = answerField.value.trim();
+    answerField.value = "";
+
+    const formData = `code=${ROOM_ID}&answer=${answer.slice(0, 1000)}`;
 
     // configure options
     const options = {
-        method: joinMethod,
+        method: postMethod,
         headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'application/json'
         },
+        body: formData
     }
 
-    const url = joinAction + formData;
-
-    const fetchPromise = fetch(url, options);
-    fetchPromise.then((response) => { handleResponse(response, true) });
+    const fetchPromise = fetch(postAction, options);
+    fetchPromise.then((response) => { handleResponse(response, false) });
 }
 
 const getPrompts = () => {
     // request prompts every second
     // SHORT POLLING
-    setTimeout(getPrompts, 1000);
+    setTimeout(getPrompts, 100);
 
     // configure options
     const options = {
@@ -111,7 +128,7 @@ const getPrompts = () => {
         },
     }
 
-    const url = `/responses?code=${ROOM_ID}`;
+    const url = `/answers?code=${ROOM_ID}`;
 
     const fetchPromise = fetch(url, options);
     fetchPromise.then((response) => { handleResponse(response, true) });
@@ -120,6 +137,9 @@ const getPrompts = () => {
 const init = () => {
     // get the room ID from the page's html
     ROOM_ID = document.getElementById('room-code').innerHTML;
+
+    // get a ref to the content
+    contentHTML = document.getElementById(`content`);
 
     const postForm = document.getElementById('postForm');
 
@@ -131,7 +151,7 @@ const init = () => {
 
     postForm.addEventListener("submit", post);
 
-    setTimeout
+    getPrompts();
 };
 
 init();

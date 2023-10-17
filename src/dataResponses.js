@@ -51,6 +51,21 @@ const populateRooms = (rooms) => {
   }
 };
 
+// function to respond with a json object
+// takes request, response, status code and object to send
+const respondJSON = (request, response, status, object) => {
+  response.writeHead(status, { 'Content-Type': 'application/json' });
+  response.write(JSON.stringify(object));
+  response.end();
+};
+
+// function to respond without json body
+// takes request, response and status code
+const respondJSONMeta = (request, response, status) => {
+  response.writeHead(status, { 'Content-Type': 'application/json' });
+  response.end();
+};
+
 // gets a room obj from the rooms object
 const getRoom = (id) => {
   return rooms[id];
@@ -93,6 +108,15 @@ const noPrompt = (request, response) => {
   const responseObj = {
     id: 'noPrompt',
     message: 'Please provide a prompt for the new room.',
+  };
+
+  return respondJSON(request, response, 400, responseObj);
+};
+
+const noAnswer = (request, response) => {
+  const responseObj = {
+    id: 'noAnswer',
+    message: 'Please provide an answer for the server to store.',
   };
 
   return respondJSON(request, response, 400, responseObj);
@@ -170,6 +194,31 @@ const findRoom = (request, response) => {
   return respondJSON(request, response, 503, responseObj);
 };
 
+const addAnswer = (request, response, params) => {
+  
+  // verify room exits
+  if (!params.code) {
+    return noRoomID(request, response);
+  }
+  if (!rooms[params.code]) {
+    return badRoomID(request, response);
+  }
+
+  
+
+  // make sure answer was provided as well
+  if (!params.answer) {
+    return noAnswer(request, response);
+  }
+
+  // ok, now we have everything
+
+  rooms[params.code].addAnswer(params.answer);
+
+  // return success
+  return respondJSONMeta(request, response, 204);
+}
+
 const claimRoom = (request, response, params) => {
   // verify room exits
   if (!params.code) {
@@ -207,73 +256,12 @@ const claimRoom = (request, response, params) => {
   return respondJSON(request, response, 201, responseObj);
 }
 
-// function to respond with a json object
-// takes request, response, status code and object to send
-const respondJSON = (request, response, status, object) => {
-  response.writeHead(status, { 'Content-Type': 'application/json' });
-  response.write(JSON.stringify(object));
-  response.end();
-};
-
-// function to respond without json body
-// takes request, response and status code
-const respondJSONMeta = (request, response, status) => {
-  response.writeHead(status, { 'Content-Type': 'application/json' });
-  response.end();
-};
-
-// return user object as JSON
-const getUsers = (request, response) => {
-  respondJSON(request, response, 200, users);
-};
-
 // return user object as JSON
 const getUsersMeta = (request, response) => {
   respondJSONMeta(request, response, 200);
 };
 
-// function to add a user from a POST body
-const addUser = (request, response, body) => {
-  // default json message
-  const responseJSON = {
-    message: 'Name and age are both required.',
-  };
-
-  // check to make sure we have both fields
-  if (!body.name || !body.age) {
-    responseJSON.id = 'addUserMissingParams';
-    return respondJSON(request, response, 400, responseJSON);
-  }
-
-  // default status code to 204 updated
-  let responseCode = 204;
-
-  // If the user doesn't exist yet
-  if (!users[body.name]) {
-    // Set the status code to 201 (created) and create an empty user
-    responseCode = 201;
-    users[body.name] = {};
-  }
-
-  // add or update fields for this user name
-  users[body.name].name = body.name;
-  users[body.name].age = body.age;
-
-  // if response is created, then set our created message
-  if (responseCode === 201) {
-    responseJSON.message = 'Created Successfully';
-    return respondJSON(request, response, responseCode, responseJSON);
-  }
-
-  return respondJSONMeta(request, response, responseCode);
-};
-
-
-
 populateRooms(rooms);
-
-rooms['1111'] = new Room.Room('1111');
-rooms['1111'].occupied = true;
 
 // exports to set functions to public
 module.exports = {
@@ -285,5 +273,6 @@ module.exports = {
   roomExists,
   findRoom,
   claimRoom,
-  getResponses
+  getAnswers,
+  addAnswer
 };

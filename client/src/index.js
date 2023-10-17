@@ -80,8 +80,6 @@ const handleResponse = async (response, parseResponse, params) => {
 
                 if (obj.newRequest) {
                     // room exists, now get html
-                    console.log(window.location.hostname)
-                    console.log(obj.newRequest)
                     window.location.assign(`${obj.newRequest}`);
                     return;
                 }

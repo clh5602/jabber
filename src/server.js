@@ -26,14 +26,15 @@ const urlStruct = {
     '/join-room': clientHandler.getRoomHTML,
     '/locate-room': requestHandler.roomExists,
     '/find-room': requestHandler.findRoom,
-    '/answers': requestHandler.getResponses
+    '/answers': requestHandler.getAnswers
   },
   'HEAD': {
     //'/find-room': tbd,
     //'/notReal': tbd
   },
   'POST': {
-    '/claim-room': requestHandler.claimRoom // param of room code, and prompt
+    '/claim-room': requestHandler.claimRoom, // param of room code, and prompt
+    '/add-answer': requestHandler.addAnswer
   },
   notFound: requestHandler.notFound,
 };
