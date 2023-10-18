@@ -27,6 +27,7 @@ const urlStruct = {
     '/locate-room': requestHandler.roomExists,
     '/find-room': requestHandler.findRoom,
     '/answers': requestHandler.getAnswers,
+    '/subscribe': requestHandler.subscribe,
     notFound: requestHandler.notFound,
   },
   HEAD: {
@@ -74,6 +75,7 @@ const onRequest = (request, response) => {
   // parse the url using the url module
   const parsedUrl = url.parse(request.url);
 
+  if (parsedUrl.pathname === '/subscribe') console.log(`new subscribe! ${Math.random()}`);
   // if query provided, convert the query to a js object.
   const params = query.parse(parsedUrl.query);
 

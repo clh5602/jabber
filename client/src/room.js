@@ -1,47 +1,37 @@
+// INFO ON LONG POLLING FROM https://javascript.info/long-polling
+
 let ROOM_ID;
 let PREV_NUM_ANSWERS = 0;
 let contentHTML;
 
+const USE_SHORT_POLLING = true;
+
 let roomLoaded = false;
 
-//A function for handling our fetch response. Read init and sendFetch first.
-const handleResponse = async (response, parseResponse, params) => {
+const subscribe = async () => {
+    // configure options
+    const options = {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json'
+        },
+    }
+
+    const url = `/subscribe?code=${ROOM_ID}`;
+
+    const fetchPromise = fetch(url, options);
+    fetchPromise.then((response) => { handleResponse(response, true) });
+}
+
+//A function for handling our fetch response
+const handleResponse = async (response, parseResponse) => {
 
     response.text().then((resText) => {
 
-        //const statusHeader = document.querySelector('#status');
-        //const messageHeader = document.querySelector('#message');
-
-        // clear the content
-        //statusHeader.innerHTML = ``;
-        //messageHeader.innerHTML = ``;
-
-        //Update header based on status code
-        switch (response.status) {
-            case 200: //Success
-                //statusHeader.innerHTML = "Success!";
-                break;
-            case 201: //Created
-                //statusHeader.innerHTML = "Created";
-                break;
-            case 204: //Updated
-                //statusHeader.innerHTML = "Updated (No Content)";
-                break;
-            case 400: //Bad Request
-                //statusHeader.innerHTML = "Bad Request";
-                break;
-            case 404: //Not Found
-                //statusHeader.innerHTML = "Not Found";
-                break;
-            case 409: //Server Conflict
-                //statusHeader.innerHTML = "Room Conflict";
-                break;
-            case 503: //Service Unavailable
-                //statusHeader.innerHTML = "All rooms are full!";
-                break;
-            default: //Anything Else
-                statusHeader.innerHTML = "Status Code not Implemented";
-                break;
+        // timeout from subscribe, retry
+        if (!USE_SHORT_POLLING && response.status === 502) {
+            subscribe();
+            return;
         }
 
         if (parseResponse) {
@@ -65,9 +55,9 @@ const handleResponse = async (response, parseResponse, params) => {
 
                         postDiv.classList.add('response');
                         triangleDiv.classList.add('triangle');
-                        
+
                         postContent.textContent = answer;
-                        postDiv.appendChild(postContent);                        
+                        postDiv.appendChild(postContent);
 
                         contentHTML.appendChild(postDiv);
                         contentHTML.appendChild(triangleDiv);
@@ -76,9 +66,11 @@ const handleResponse = async (response, parseResponse, params) => {
                     PREV_NUM_ANSWERS = numAnswers;
 
                     if (scrollFlag) {
-                        window.scroll({top: contentHTML.scrollHeight});
+                        window.scroll({ top: contentHTML.scrollHeight });
                         roomLoaded = true;
                     }
+
+                    if (!USE_SHORT_POLLING) subscribe();
                     return;
                 }
             }
@@ -113,11 +105,10 @@ const postFormSubmit = async (postForm) => {
     fetchPromise.then((response) => { handleResponse(response, false) });
 }
 
-const getPrompts = () => {
-    // request prompts every second
-    // SHORT POLLING
-    setTimeout(getPrompts, 100);
-
+const getAnswers = () => {
+    
+    if (USE_SHORT_POLLING) setTimeout(getAnswers, 200);
+    
     // configure options
     const options = {
         method: 'GET',
@@ -149,7 +140,10 @@ const init = () => {
 
     postForm.addEventListener("submit", post);
 
-    getPrompts();
+    // initialize page with answers
+    getAnswers();
+
+    if (!USE_SHORT_POLLING) subscribe();
 };
 
 init();

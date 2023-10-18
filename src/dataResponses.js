@@ -274,6 +274,18 @@ const claimRoom = (request, response, params) => {
   return respondJSON(request, response, 201, responseObj);
 };
 
+const subscribe = async (request, response, params) => {
+  // verify room exits
+  if (!params.code) {
+    return noRoomID(request, response);
+  }
+  if (!rooms[params.code]) {
+    return badRoomID(request, response);
+  }
+
+  return rooms[params.code].addSubscriber(request, response);
+};
+
 // responsible for free-ing up inactive rooms
 const roomCleanse = () => {
   setTimeout(roomCleanse, CHECK_INTERVAL);
@@ -313,4 +325,5 @@ module.exports = {
   roomExistsMeta,
   findRoomMeta,
   getAnswersMeta,
+  subscribe,
 };
